@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<style>
+  /* Texto apenas para leitor de tela */
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  /* Foco visível para teclado */
+  :focus-visible{outline:3px solid #005fcc; outline-offset:2px}
+  /* Alvos táteis confortáveis */
+  button{min-height:44px; min-width:44px}
+</style>
+
+  <title>Criação</title>
+  <script src="http://172.20.3.60:3000/socket.io/socket.io.js">
+    socket.on('limpar', pagina => {
+      if (pagina === window.location.pathname.split("/").pop()) {
+        document.getElementById('mensagens').innerHTML = '';
+      }
+    });
+
+    socket.on('redirecionar', pagina => {
+      window.location.href = pagina;
+    });
+</script>
+<style>
+  /* Borda grossa em todos os botões */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .btn,
+  [role="button"] {
+    border-width: 5px !important;
+    border-style: solid;
+    border-color: currentColor; /* usa a cor do texto do botão */
+  }
+</style>
+
+  <script>
+    const socket = io();
+    socket.emit('pagina', 'criar.html');
+    let entradaAtiva = false;
+    socket.on('mensagem', msg => {
+      socket.emit('criarMensagem', msg);
+      const div = document.getElementById('mensagens');
+      const p = document.createElement('p');
+      p.textContent = msg;
+      div.appendChild(p);
+    });
+    socket.on('permiteEntrada', permitido => {
+      entradaAtiva = permitido;
+      document.getElementById('entradaTexto').disabled = !permitido;
+      document.getElementById('enviarTexto').disabled = !permitido;
+         // >>> ADIÇÃO: quando liberar, foca no placeholder do input
+      document.getElementById('entradaTexto').focus({ preventScroll: true });
+
+    });
+    function enviarTexto() {
+      if (entradaAtiva) {
+        const texto = document.getElementById('entradaTexto').value;
+        socket.emit('respostaUsuario', texto);
+        document.getElementById('entradaTexto').value = '';
+      }
+    }
+  
+    socket.on('limpar', pagina => {
+      if (pagina === window.location.pathname.split("/").pop()) {
+        document.getElementById('mensagens').innerHTML = '';
+      }
+    });
+
+    socket.on('redirecionar', pagina => {
+      window.location.href = pagina;
+    });
+</script>
+
+<style>
+/* Botões responsivos */
+button {
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  border-radius: 16px;
+}
+@media (max-width: 768px) {
+  button {
+    width: 100%;
+    font-size: 1.25rem;
+  }
+}
+
+/* Cursor de alto contraste (substitua high-contrast-cursor.cur pelo seu arquivo de cursor) */
+body {
+  cursor: url('high-contrast-cursor.cur'), auto;
+}
+
+/* Placeholder de alto contraste em criar.html */
+input::placeholder {
+  color: #000 !important;
+  opacity: 1;
+  font-size: 1.25rem;
+}
+input {
+  background-color: #fff;
+  color: #000;
+}
+</style>
+
+</head>
+<body role="main">
+
+<style>
+  body.high-contrast {
+    background-color: #000 !important;
+    color: #fff !important;
+  }
+  body.high-contrast button {
+    background-color: #ff0 !important;
+    color: #000 !important;
+  }
+  button, input[type="text"] {
+    font-size: 1.2em;
+    padding: 12px 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  h1, p {
+    font-size: 1.4em;
+  }
+  *:focus {
+    outline: 3px solid #00f;
+    outline-offset: 2px;
+  }
+</style>
+<script>
+  function toggleContrast() {
+    const contrast = document.body.classList.toggle('high-contrast');
+    localStorage.setItem('highContrast', contrast);
+  }
+  window.onload = () => {
+    if (localStorage.getItem('highContrast') === 'true') {
+      document.body.classList.add('high-contrast');
+    }
+  };
+
+    socket.on('limpar', pagina => {
+      if (pagina === window.location.pathname.split("/").pop()) {
+        document.getElementById('mensagens').innerHTML = '';
+      }
+    });
+
+    socket.on('redirecionar', pagina => {
+      window.location.href = pagina;
+    });
+</script>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px;">
+  <button onclick="location.href='index.html'" aria-label="Voltar ao início">Início</button>
+  <button onclick="location.href='autodescricao.html'" aria-label="Ir para autodescrição">Autodescrição</button>
+  <button onclick="location.href='criar.html'" aria-label="Ir para página de criação">Criar</button>
+</div>
+
+
+
+  <h1>Criação de diagramas de caso de uso</h1>
+  <div id="mensagens">Agora vamos criar um diagrama de caso de uso e você poderá interagir usando teclado e mouse ou via comando de voz. 
+    Coloque apenas um elemento por vez e sempre que desejar definir um elemento, basta colocar na mesa interativa. 
+    Se quiser alterá-lo basta removê-lo da mesa por 3 segundos e depois colocá-lo novamente. 
+    Para apagar o elemento, basta remover ele da mesa. 
+    Se precisar de uma descrição interativa basta encostar um dedo na peça que deseja por alguns segundos</div>
+  <input type="text" id="entradaTexto" placeholder="Digite algo..." disabled>
+  <button id="enviarTexto" onclick="enviarTexto()" disabled>Enviar</button>
+  
+<script>
+function speakText(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    window.speechSynthesis.speak(utterance);
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('mensagens');
+  if (container) {
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'P') {
+            speakText(node.textContent);
+          }
+        });
+      });
+    });
+    observer.observe(container, { childList: true });
+  }
+});
+</script>
+
+<script>
+  (function () {
+    const entrada = document.getElementById('entradaTexto');
+    if (!entrada) return;
+
+    entrada.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+
+        // (opcional) respeita o controle do operador, se você usa essa flag
+        if (typeof entradaAtiva !== 'undefined' && !entradaAtiva) return;
+
+        // Reusa sua função existente (mantém sua lógica atual de envio)
+        if (typeof enviarTexto === 'function') {
+          enviarTexto();
+        } else {
+          // Fallback direto caso não exista enviarTexto()
+          const texto = entrada.value.trim();
+          if (!texto) return;
+          try { socket.emit('respostaUsuario', texto); } catch (e) {}
+        }
+
+        /*  (OPCIONAL) Se você quiser que, após enviar no Enter,
+            o campo seja limpo e volte a desabilitar automaticamente,
+            descomente as linhas abaixo:
+        */
+        entrada.value = '';
+        entrada.disabled = true;
+        const btnEnviar = document.getElementById('enviarTexto');
+        if (btnEnviar) btnEnviar.disabled = true;
+        entrada.blur();
+      }
+    });
+  })();
+</script>
+
+<style>
+  /* Escala global de fonte */
+  :root { --font-zoom: 1; }
+  html { font-size: calc(16px * var(--font-zoom)); }
+
+  /* Garante que controles comuns sigam a escala (mesmo se antes estavam em px) */
+  input, button, select, textarea { font-size: 1rem !important; }
+
+  /* Títulos usando valores responsivos */
+  h1 { font-size: clamp(1.4rem, 1.1rem + 1vw, 2rem); }
+  h2 { font-size: clamp(1.2rem, 1.0rem + 0.8vw, 1.6rem); }
+  h3 { font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.4rem); }
+
+  /* Barra de controle de fonte */
+  .font-ctl {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin: 8px 0 14px;
+  }
+  .font-ctl button {
+    padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd;
+    background: #fff; cursor: pointer;
+  }
+  .font-ctl span { min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Compatível com seu modo alto-contraste, se existir */
+  .high-contrast .font-ctl button { background: #333; color: #fff; border-color: #666; }
+</style>
+
+<script>
+(function(){
+  const MIN = 2, MAX = 8, STEP = 0.50;
+  const key = 'fontZoom';
+  const root = document.documentElement;
+  let zoom = parseFloat(localStorage.getItem(key)) || 1;
+
+  function apply(){
+    zoom = Math.min(MAX, Math.max(MIN, zoom));
+    root.style.setProperty('--font-zoom', zoom.toFixed(2));
+    const disp = document.getElementById('fontDisplay');
+    if (disp) disp.textContent = Math.round(zoom * 100) + '%';
+  }
+
+  // Inicializa com o valor salvo
+  apply();
+
+  document.getElementById('fontUp')?.addEventListener('click', () => {
+    zoom += STEP; apply(); localStorage.setItem(key, zoom);
+  });
+  document.getElementById('fontDown')?.addEventListener('click', () => {
+    zoom -= STEP; apply(); localStorage.setItem(key, zoom);
+  });
+  document.getElementById('fontReset')?.addEventListener('click', () => {
+    zoom = 1; apply(); localStorage.setItem(key, zoom);
+  });
+})();
+</script>
+
+</body>
+</html>

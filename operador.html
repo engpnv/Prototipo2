@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Operador</title>
+  <script src="http://172.20.3.60:3000/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    socket.on('pagina', pagina => {
+      document.getElementById('paginaAtual').textContent = pagina;
+    });
+    function enviarMensagem() {
+      const msg = document.getElementById('mensagem').value;
+      socket.emit('mensagem', msg);
+      document.getElementById('mensagem').value = '';
+    }
+    function permitirEntrada(status) {
+      socket.emit('permiteEntrada', status);
+    }
+    
+  </script>
+
+<style>
+/* Botões responsivos */
+button {
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  button {
+    width: 100%;
+    font-size: 1.25rem;
+  }
+}
+
+/* Cursor de alto contraste (substitua high-contrast-cursor.cur pelo seu arquivo de cursor) */
+body {
+  cursor: url('high-contrast-cursor.cur'), auto;
+}
+
+/* Placeholder de alto contraste em criar.html */
+input::placeholder {
+  color: #000 !important;
+  opacity: 1;
+  font-size: 1.25rem;
+}
+input {
+  background-color: #fff;
+  color: #000;
+}
+</style>
+
+</head>
+<body role="main">
+
+<style>
+  body.high-contrast {
+    background-color: #000 !important;
+    color: #fff !important;
+  }
+  body.high-contrast button {
+    background-color: #ff0 !important;
+    color: #000 !important;
+  }
+  button, input[type="text"] {
+    font-size: 1.2em;
+    padding: 12px 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  h1, p {
+    font-size: 1.4em;
+  }
+  *:focus {
+    outline: 3px solid #00f;
+    outline-offset: 2px;
+  }
+</style>
+<script>
+  function toggleContrast() {
+    const contrast = document.body.classList.toggle('high-contrast');
+    localStorage.setItem('highContrast', contrast);
+  }
+  window.onload = () => {
+    if (localStorage.getItem('highContrast') === 'true') {
+      document.body.classList.add('high-contrast');
+    }
+  };
+</script>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+  <button onclick="location.href='autodescricao.html'" aria-label="Ir para autodescrição">Autodescrição</button>
+  <button onclick="location.href='descricaointerativa.html'" aria-label="Ir para descrição interativa">Descrição Interativa</button>
+  <button onclick="location.href='criar.html'" aria-label="Ir para página de criação">Criar</button>
+</div>
+<div style="position: fixed; top: 10px; right: 10px; z-index: 10000;">
+  <button onclick="toggleContrast()" aria-label="Ativar ou desativar alto contraste">Contraste</button>
+</div>
+  <h1>Operador</h1>
+  <p>Usuário está em: <span id="paginaAtual">...</span></p>
+  <input type="text" id="mensagem" placeholder="Digite uma mensagem">
+  <button onclick="enviarMensagem()">Enviar</button>
+  <br><br>
+  <button onclick="permitirEntrada(true)">Ativar entrada de texto</button>
+  <button onclick="permitirEntrada(false)">Desativar entrada de texto</button>
+  <br><br>
+
+
+  <button onclick="limparMensagens('criar.html')">Limpar criação</button>
+  <button onclick="limparMensagens('autodescricao.html')">Limpar autodescrição</button>
+
+  <script>
+    function limparMensagens(pagina) {
+      socket.emit('limpar', pagina);
+    }
+  </script>
+
+  <h2>Mensagens da página de Criação:</h2>
+  <div id="mensagensCriar" style="border:1px solid #ccc; padding:10px; margin-bottom:20px;"></div>
+  <script>
+    socket.on('criarMensagemOperador', msg => {
+      const div = document.getElementById('mensagensCriar');
+      const p = document.createElement('p');
+      p.textContent = msg;
+      div.appendChild(p);
+    });
+  </script>
+
+<h2>Redirecionar usuário</h2>
+<select id="paginaDestino" aria-label="Selecionar página para redirecionar o usuário">
+  <option value="autodescricao.html">Autodescrição</option>
+  <option value="descricaointerativa.html">Descrição Interativa</option>
+  <option value="criar.html">Criar</option>
+</select>
+<button onclick="redirecionarUsuario()">Redirecionar</button>
+<p id="statusRedirecionamento" style="color: green; font-weight: bold;"></p>
+
+<script>
+  function redirecionarUsuario() {
+    const pagina = document.getElementById('paginaDestino').value;
+    socket.emit('redirecionar', pagina);
+    const status = document.getElementById('statusRedirecionamento');
+    status.textContent = 'Usuário redirecionado para: ' + pagina;
+    setTimeout(() => {{
+      status.textContent = '';
+    }}, 4000);
+  }
+</script>
+</body>
+
+
+</html>
